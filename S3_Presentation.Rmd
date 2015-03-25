@@ -327,7 +327,5 @@ I tend to think about plotting applications as either **artisinal** or **industr
 
 If you want to produce a small number of beautiful artisinal plots, you are almost certainly better off using `ggplot2`.
 
-## Thanks!
-
-Questions?
+## Live Demo
 
