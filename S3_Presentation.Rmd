@@ -1,0 +1,333 @@
+---
+title: "S3 Methods and Quick Summary Plots"
+author: "Nick Salkowski"
+date: "Thursday, March 26, 2015"
+output: ioslides_presentation
+---
+
+## Class Systems
+
+R is an object oriented language -- one with different
+systems of classes!
+
+S3 is just one of those class systems.
+
+ - Some sloppiness is allowed in S3
+     - So, it is fairly easy to learn to use (or abuse)
+ - S3 is used for a lot of common R functions
+
+```{r, echo = FALSE, results = 'hide'}
+set.seed(1234)
+
+knitr::opts_knit$set(tidy = FALSE)
+
+suppressWarnings(suppressPackageStartupMessages(
+  library("ggplot2")))
+suppressWarnings(suppressPackageStartupMessages(
+  library("dplyr")))
+library(pithr)
+library(magrittr)
+```
+
+## S3 Example
+
+```{r}
+X_fact <- factor(
+  LETTERS[sample.int(5, size = 50, replace = TRUE)])
+X_num <- rnorm(50, mean = 10, sd = sqrt(10))
+summary(X_fact)
+summary(X_num)
+```
+
+## How does that work?
+
+The `summary` function has different methods, depending on the class of object it is given.
+
+```{r}
+summary
+```
+
+## Methods
+
+```{r}
+methods(summary)
+```
+
+## S3 Method Function
+
+```{r}
+summary.factor
+```
+
+## Plot is another example
+
+```{r}
+methods(plot)
+```
+
+## Here are some more examples
+
+```{r}
+methods(coef)
+methods(hist)
+```
+
+## Creating Your Own Class
+
+Recall, S3 is sort of sloppy.  You can just create an object and then tell R which class (or classes) it belongs to!
+```{r}
+X_fish <- structure(rpois(50, lambda = 5),
+  class = c("fish", "integer"))
+summary.fish <- function(object, ...) {
+  fish <- object
+  table(fish)
+  }
+summary(X_fish)
+```
+
+## Motivation
+
+Sometimes it is nice to have a plot that summarizes 
+your data.
+
+ - Exploring
+ - Debugging
+
+There are lots of nice plotting functions, but they 
+don't all work with all kinds of data.
+
+```{r}
+X1 <- c(rnorm(70), rep(c(-Inf, Inf), 10),
+        rep(c(NaN, NA), 5))
+X2 <- factor(c(
+  LETTERS[sample.int(5, size = 70, replace = TRUE)],
+  rep(NA, 30)))
+```
+
+## Histograms? (Part 1)
+
+```{r}
+hist(X1)
+```
+
+## Histograms? (Part 2)
+
+```{r}
+(try(hist(X2)))
+```
+
+## Frequency Plots? (Part 1)
+
+```{r}
+barplot(table(X2))
+```
+
+## Frequency Plots? (Part 2)
+
+```{r}
+barplot(table(X1))
+```
+
+## ggplot2? (Part 1)
+
+```{r}
+qplot(X1, binwidth = 0.5)
+```
+
+## ggplot2? (Part 2)
+
+```{r}
+qplot(X2)
+```
+
+## Drawbacks
+
+ - `hist` only handles numbers and dates
+ - `barplot` + `table` doesn't handle doubles well
+ - No support for lists or data.frames
+ - Non-Finite and Missing Values are often dropped
+ 
+## So, I wrote a package . . .
+
+ - I'm relatively new to writing packages 
+ (So, it's a little rough around the edges)
+ - It's available on GitHub
+ - It's called **pithr**
+ 
+## What is a *pith*?
+
+ - One definition of *pith* is *the essence of something*.
+ - When used as a verb, *pith* means *to remove the pith from*.  
+
+In the context of the pithr package, a *pith* is a simple summary plot of the data contained in an object.  
+
+That is, the *pith* of your data is the *essence* of your data.
+
+## Installing the pithr package
+
+pithr is not available on CRAN, but it is available on GitHub.  To install 
+pithr directly from GitHub, first install the [devtools](https://github.com/hadley/devtools) package, then use `devtools::install_github`.
+
+```
+install.packages("devtools")
+devtools::install_github("NickSalkowski/pithr")
+```
+
+## Using pithr
+
+The most basic command in the pithr package is `pith`.  
+
+`pith` handles a wide variety of data types and structures, producing frequency plots or histograms, depending on the data itself.
+
+## Integers (Range <= 25)
+```{r}
+X_int <- rpois(n = 100, lambda = 5)
+pith(X_int)
+```
+
+## Integers (Range > 25)
+```{r}
+X_int2 <- rpois(n = 100, lambda = 500)
+pith(X_int2)
+```
+
+## Doubles
+```{r}
+X_num <- rnorm(n = 100, mean = 5, sd = sqrt(5))
+pith(X_num)
+```
+
+## Characters
+```{r}
+X_char <- LETTERS[X_int]
+pith(X_char)
+```
+
+## Factors
+```{r}
+X_fact <- factor(X_char)
+pith(X_fact)
+```
+
+## Logicals
+```{r}
+X_log <- as.logical(rbinom(100, 1, 0.625))
+pith(X_log)
+```
+
+## Dates
+```{r, fig.height = 4}
+X_Date <- as.Date(sample.int(10000, size = 100, replace = TRUE), 
+  origin = "1970-01-01")
+pith(X_Date)
+```
+
+## Matrices & Arrays
+Matrices and arrays are collapsed into vectors by `pith`.  
+```{r, fig.height = 4}
+X_mat <- matrix(rpois(400, 100),  ncol = 20)
+pith(X_mat)
+```
+
+## Lists and data.frames
+If `pith` is given a list or data.frame, each element or column is summarized separately.
+
+```{r, fig.height = 4}
+par(mfrow = c(1,2))
+pith(cars)
+```
+
+## NA Values
+
+`pith` seperates NA values, and presents their frequencies separately
+
+```{r, fig.height = 4}
+pith(X2)
+```
+
+## Non-Finite Values
+
+`pith` separates non-finite values, and presents their frequencies separately.
+```{r, fig.height = 4}
+pith(X1)
+```
+
+## Arguments
+
+`pith` accepts several arguments that help control the plot.
+
+- plot If TRUE, a plot is produced.
+- xname The "name" of the data.  This is used to produce the main plot title.
+- breaks, include.lowest, right These arguments are passed to the `hist` 
+  function, if a histogram is produced.
+- ... Additional plot arguments.
+
+## Example with arguments
+
+```{r}
+pith(X1, xname = "Numeric Vector Example", breaks = 5, las = 1)
+```
+
+## pithy Returns
+
+`pith` invisibly returns a pith class object, which is a list that contains summary statistics for the data.  
+
+There are some situations where it would 
+be useful to return the data object inself, instead. 
+
+`pithy` is a convenience 
+function that calls `pith`, but returns the object.
+
+This behavior is particularly handy when used with the 
+[magrittr](https://github.com/smbache/magrittr) and 
+[dplyr](https://github.com/hadley/dplyr) packages.
+
+## pithy Example
+```{r}
+X_unif <- pithy(runif(100))
+```
+
+## magrittr + pithy
+
+```{r}
+X_gamma <- rgamma(100, 2, 2) %>%
+  pithy
+```
+
+## dplyr + pithy
+```{r, fig.height = 4}
+par(mfrow = c(1, 2))
+iris %>% select(Sepal.Length) %>% pithy %>%
+  transmute(SLsq = Sepal.Length ^ 2) %>% pith
+```
+
+## Special dplyr + pithy functions
+pithr also contains helper functions `filter_pithy`, `select_pithy`, 
+`mutate_pithy`, and `transmute_pithy` that filter, select, mutate, and 
+transmute data sets before calling `pithy`.  
+
+Just like `pithy`, they 
+return the original data set (before any filtering, selecting, or mutating).
+
+## select_pithy example
+```{r, fig.height = 2.5}
+par(mfrow = c(1, 2))
+iris %>% select_pithy(Petal.Length) %>%
+  transmute_pithy(SLsq = Sepal.Length ^ 2) %>% tbl_df
+```
+
+## Effort vs. Quality
+
+I tend to think about plotting applications as either **artisinal** or **industrial**
+
+ - **artisinal plots** are created by a skilled plotmaker for a specific purpose.  Quality is highly valued.
+ - **industrial plots** usually aren't quite as good, but can be mass produced with much less effort per plot.
+ 
+`pithr` is built to produce *useful* plots with minimal effort, so I consider definitely it industrial.
+
+If you want to produce a small number of beautiful artisinal plots, you are almost certainly better off using `ggplot2`.
+
+## Thanks!
+
+Questions?
+
