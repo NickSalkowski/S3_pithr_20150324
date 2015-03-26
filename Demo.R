@@ -12,14 +12,8 @@ titanic <- read.csv(
 # Text Summary
 summary(titanic)
 
-# Pause Between Plots
-devAskNewPage(TRUE)
-
 # Graphical Summary
 pith(titanic, las = 1)
-
-# No Pause Between Plots
-devAskNewPage(FALSE)
 
 # Fare looks skewed.  What about a log-transform?
 titanic %>%
