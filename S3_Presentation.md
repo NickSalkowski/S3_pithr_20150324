@@ -51,7 +51,7 @@ summary
 ```
 ## function (object, ...) 
 ## UseMethod("summary")
-## <bytecode: 0x00000000088f9428>
+## <bytecode: 0x00000000088f9200>
 ## <environment: namespace:base>
 ```
 
@@ -112,7 +112,7 @@ summary.factor
 ##         c(tt, `NA's` = sum(nas))
 ##     else tt
 ## }
-## <bytecode: 0x0000000008e2fa38>
+## <bytecode: 0x0000000008e2fe40>
 ## <environment: namespace:base>
 ```
 
@@ -513,7 +513,7 @@ I tend to think about plotting applications as either **artisinal** or **industr
  - **artisinal plots** are created by a skilled plotmaker for a specific purpose.  Quality is highly valued.
  - **industrial plots** usually aren't quite as good, but can be mass produced with much less effort per plot.
  
-`pithr` is built to produce *useful* plots with minimal effort, so I consider definitely it industrial.
+`pithr` is built to produce *useful* plots with minimal effort, so I definitely consider it industrial.
 
 If you want to produce a small number of beautiful artisinal plots, you are almost certainly better off using `ggplot2`.
 
