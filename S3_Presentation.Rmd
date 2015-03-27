@@ -3,8 +3,7 @@ title: 'Dispatching S3 Methods for Quick Data Plots '
 author: "Nick Salkowski"
 date: "Thursday, March 26, 2015"
 output:
-  ioslides_presentation:
-    keep_md: yes
+  ioslides_presentation
 ---
 
 ## Class Systems
